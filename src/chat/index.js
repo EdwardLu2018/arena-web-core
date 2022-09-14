@@ -10,21 +10,12 @@
 
 import * as Paho from 'paho-mqtt'; // https://www.npmjs.com/package/paho-mqtt
 import {ARENAEventEmitter} from '../event-emitter.js';
+import {ARENAUtils} from '../utils.js';
 import linkify from 'linkifyjs';
 import linkifyStr from 'linkifyjs/string';
 import Swal from 'sweetalert2';
 import {SideMenu} from '../icons';
 import './style.css';
-
-/**
- * Generate a UUID.
- * @return {string} The generated UUID string.
- */
-function uuidv4() {
-    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
-        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
-    );
-}
 
 /**
  * A class to manage an instance of the ARENA chat MQTT and GUI message system.
@@ -44,7 +35,7 @@ export class ARENAChat {
         // handle default this.settings
         st = st || {};
         this.settings = {
-            userid: st.userid !== undefined ? st.userid : uuidv4(),
+            userid: st.userid !== undefined ? st.userid : ARENAUtils.uuidv4(),
             cameraid: st.cameraid !== undefined ? st.cameraid : 'camera_auser',
             username: st.username !== undefined ? st.username : 'chat-dft-username',
             realm: st.realm !== undefined ? st.realm : 'realm',
@@ -601,7 +592,7 @@ export class ARENAChat {
 
         const _this = this; /* save reference to class instance */
         const msg = {
-            object_id: uuidv4(),
+            object_id: ARENAUtils.uuidv4(),
             type: 'chat-ctrl',
             to_uid: 'all',
             from_uid: this.settings.userid,
@@ -675,7 +666,7 @@ export class ARENAChat {
     sendMsg(msgTxt) {
         const now = new Date();
         const msg = {
-            object_id: uuidv4(),
+            object_id: ARENAUtils.uuidv4(),
             type: 'chat',
             to_uid: this.toSel.value,
             from_uid: this.settings.userid,
@@ -1217,7 +1208,7 @@ export class ARENAChat {
             dstTopic = this.settings.publishPrivateTopic.replace('{to_uid}', to);
         }
         const msg = {
-            object_id: uuidv4(),
+            object_id: ARENAUtils.uuidv4(),
             type: 'chat-ctrl',
             to_uid: to,
             from_uid: this.settings.userid,
