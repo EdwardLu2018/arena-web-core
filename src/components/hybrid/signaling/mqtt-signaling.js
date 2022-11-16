@@ -105,7 +105,6 @@ export class MQTTSignaling {
 
         this.publish(topic, JSON.stringify(msg));
     }
-
     sendConnect() {
         const width = Math.max(screen.width, screen.height);
         const height = Math.min(screen.width, screen.height);
@@ -118,9 +117,8 @@ export class MQTTSignaling {
         };
         this.sendMessage(`${CLIENT_CONNECT_TOPIC_PREFIX}/${ARENA.namespacedScene}/${this.id}`, 'connect', connectData);
     }
-
     closeConnection() {
-        this.sendMessage(`${CLIENT_DISCONNECT_TOPIC_PREFIX}/${ARENA.namespacedScene}/${this.id}`, 'disconnect');
+        this.sendMessage(`${CLIENT_DISCONNECT_TOPIC_PREFIX}/${ARENA.namespacedScene}/${this.id}`, 'disconnect',ARENA.namespacedScene);
 
         this.client.disconnect();
     }
