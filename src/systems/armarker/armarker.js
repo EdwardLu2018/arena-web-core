@@ -13,14 +13,14 @@
  * @date 2020
  */
 
-import {WebXRCameraCapture} from './camera-capture/ccwebxr';
-import {WebARCameraCapture} from './camera-capture/ccwebar';
-import {ARHeadsetCameraCapture} from './camera-capture/ccarheadset';
-import {WebARViewerCameraCapture} from './camera-capture/ccwebarviewer';
-import {ARMarkerRelocalization} from './armarker-reloc';
-import {CVWorkerMsgs} from './worker-msgs';
-import {ARENAEventEmitter} from '../../event-emitter';
-import {ARENAUtils} from '../../utils';
+import {WebXRCameraCapture} from './camera-capture/ccwebxr.js';
+import {WebARCameraCapture} from './camera-capture/ccwebar.js';
+import {ARHeadsetCameraCapture} from './camera-capture/ccarheadset.js';
+import {WebARViewerCameraCapture} from './camera-capture/ccwebarviewer.js';
+import {ARMarkerRelocalization} from './armarker-reloc.js';
+import {CVWorkerMsgs} from './worker-msgs.js';
+import {ARENAEventEmitter} from '../../event-emitter.js';
+import {ARENAUtils} from '../../utils.js';
 
 /**
   * ARMarker System. Supports ARMarkers in a scene.
@@ -159,8 +159,8 @@ AFRAME.registerSystem('armarker', {
         }
 
         // if we are on an AR headset, use camera facing forward
-        ARENA.arHeadset = this.detectARHeadset();
-        if (ARENA.arHeadset !== undefined) {
+        const arHeadset = ARENAUtils.detectARHeadset();
+        if (arHeadset !== 'unknown') {
             // try to set up a camera facing forward capture (using getUserMedia)
             console.info('Setting up AR Headset camera capture.');
             try {
@@ -324,20 +324,6 @@ AFRAME.registerSystem('armarker', {
                 });
             });
         return true;
-    },
-    /**
-    * Try to detect AR headset (currently: magic leap and hololens only;  other devices to be added later)
-    * Hololens reliable detection is tbd
-    *
-    * ARHeadeset camera capture uses returned value as a key to projection matrix array
-    *
-    * @return {string} "ml", "hl", "unknown".
-    * @alias module:armarker-system
-    */
-    detectARHeadset() {
-        if (window.mlWorld) return 'ml';
-        if (navigator.xr && navigator.userAgent.includes('Edg')) return 'hl';
-        return undefined;
     },
     /**
     * Register an ARMarker component with the system
