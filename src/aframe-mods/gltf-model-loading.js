@@ -30,6 +30,7 @@ AFRAME.components['gltf-model'].Component.prototype.update = function() {
         el.emit('model-loaded', {format: 'gltf', model: self.model});
     }, function gltfProgress(xhr) {
         el.emit('model-progress', {src: src, progress: (xhr.loaded / xhr.total * 100)});
+        xhr.abort;
     }, function gltfFailed(error) {
         const message = (error && error.message) ? error.message : 'Failed to load glTF model';
         console.error(message);
