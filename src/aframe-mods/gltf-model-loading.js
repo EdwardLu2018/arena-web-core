@@ -20,6 +20,7 @@ function checkRequest(url) {
         controller.abort();
       console.log("Download complete", response);
     })
+    return check;
 }
 
 AFRAME.components['gltf-model'].Component.prototype.update = function() {
@@ -35,8 +36,8 @@ AFRAME.components['gltf-model'].Component.prototype.update = function() {
     // register with model-progress system to handle model loading events
 
     document.querySelector('a-scene').systems['model-progress'].registerModel(el, src);
-    checkRequest(src);
-    /*
+    console.log(checkRequest(src));
+    
     this.loader.load(src, function gltfLoaded(gltfModel) {
         self.model = gltfModel.scene || gltfModel.scenes[0];
         self.model.animations = gltfModel.animations;
@@ -50,5 +51,5 @@ AFRAME.components['gltf-model'].Component.prototype.update = function() {
         console.error(message);
         el.emit('model-error', {format: 'gltf', src: src});
     });
-    */
+    
 };
