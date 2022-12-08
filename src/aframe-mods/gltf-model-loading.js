@@ -8,11 +8,24 @@
  * @date 2020
  */
 
+function checkRequest(url) {
+    let check;
+    const request =  new Request(url);
+    const controller = new AbortController();
+    const signal = controller.signal;
+    fetch(request, { signal })
+    .then((response) => {
+        check = response.headers.get( 'Content-Length' ) || response.headers.get( 'X-File-Size' );
+        console.log(check);
+        controller.abort();
+      console.log("Download complete", response);
+    })
+}
+
 AFRAME.components['gltf-model'].Component.prototype.update = function() {
     const self = this;
     const el = this.el;
     const src = this.data;
-    console.log(src);
     if (!src) {
         return;
     }
