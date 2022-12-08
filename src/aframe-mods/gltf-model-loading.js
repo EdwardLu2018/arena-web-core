@@ -18,7 +18,7 @@ function checkRequest(url) {
         check = response.headers.get( 'Content-Length' ) || response.headers.get( 'X-File-Size' );
         console.log(check);
         controller.abort();
-      console.log("Download complete", response);
+        return check;
     })
     return check;
 }
