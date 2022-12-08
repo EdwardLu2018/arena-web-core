@@ -17,10 +17,10 @@ function checkRequest(url) {
     .then((response) => {
         check = response.headers.get( 'Content-Length' ) || response.headers.get( 'X-File-Size' );
         console.log(check);
-        controller.abort();
         return check;
+        controller.abort();
     })
-    return check;
+    //return check;
 }
 
 AFRAME.components['gltf-model'].Component.prototype.update = function() {
