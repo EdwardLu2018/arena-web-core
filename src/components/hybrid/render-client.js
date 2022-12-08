@@ -64,7 +64,7 @@ AFRAME.registerComponent('render-client', {
 
         window.addEventListener('hybrid-onremoterender', this.onRemoteRender.bind(this));
         console.log('[render-client]', this.id);
-
+        console.log(this.el);
         // window.addEventListener('keyup', this.tick1.bind(this));
     },
 
