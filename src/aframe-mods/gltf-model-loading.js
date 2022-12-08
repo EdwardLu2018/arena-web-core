@@ -13,14 +13,9 @@ function checkRequest(url) {
     const request =  new Request(url);
     const controller = new AbortController();
     const signal = controller.signal;
-    fetch(request, { signal })
-    .then((response) => {
-        check = response.headers.get( 'Content-Length' ) || response.headers.get( 'X-File-Size' );
-        console.log(check);
-        return check;
-        controller.abort();
-    })
-    //return check;
+    response = fetch(request, { signal })
+    
+    return response;
 }
 
 AFRAME.components['gltf-model'].Component.prototype.update = function() {
