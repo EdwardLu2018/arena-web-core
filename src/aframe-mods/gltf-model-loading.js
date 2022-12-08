@@ -22,14 +22,14 @@ AFRAME.components['gltf-model'].Component.prototype.update = function() {
 
     document.querySelector('a-scene').systems['model-progress'].registerModel(el, src);
     
-    const request =  new Request(url);
+    const request =  new Request(src);
     const controller = new AbortController();
     const signal = controller.signal;
     fetch(request, { signal })
     .then((response) => {
         const check = response.headers.get( 'Content-Length' ) || response.headers.get( 'X-File-Size' );
         console.log(check);
-        
+
         this.loader.load(src, function gltfLoaded(gltfModel) {
             self.model = gltfModel.scene || gltfModel.scenes[0];
             self.model.animations = gltfModel.animations;
