@@ -36,6 +36,7 @@ AFRAME.components['gltf-model'].Component.prototype.update = function() {
 
     document.querySelector('a-scene').systems['model-progress'].registerModel(el, src);
     checkRequest(src);
+    /*
     this.loader.load(src, function gltfLoaded(gltfModel) {
         self.model = gltfModel.scene || gltfModel.scenes[0];
         self.model.animations = gltfModel.animations;
@@ -49,4 +50,5 @@ AFRAME.components['gltf-model'].Component.prototype.update = function() {
         console.error(message);
         el.emit('model-error', {format: 'gltf', src: src});
     });
+    */
 };
