@@ -49,7 +49,7 @@ AFRAME.registerComponent('render-client', {
         // this.tick = AFRAME.utils.throttleTick(this.tick, 100, this);
 
         this.id = ARENAUtils.uuidv4();
-
+        console.log(this.el.id);
         this.signaler = new MQTTSignaling(this.id);
         this.signaler.onOffer = this.gotOffer.bind(this);
         this.signaler.onHealthCheck = this.gotHealthCheck.bind(this);

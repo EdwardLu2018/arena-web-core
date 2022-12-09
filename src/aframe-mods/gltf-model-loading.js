@@ -25,6 +25,7 @@ AFRAME.components['gltf-model'].Component.prototype.update = function() {
     const request =  new Request(src);
     const controller = new AbortController();
     const signal = controller.signal;
+    console.log(this.el.id);
     fetch(request, { signal })
     .then((response) => {
         const check = response.headers.get( 'Content-Length' ) || response.headers.get( 'X-File-Size' );
