@@ -30,7 +30,7 @@ AFRAME.components['gltf-model'].Component.prototype.update = function() {
         const check = response.headers.get( 'Content-Length' ) || response.headers.get( 'X-File-Size' );
         console.log(check);
         if((check < 20000 && ARENAUtils.getDeviceType() == 'mobile') || 
-            (check < 10000000 && ARENAUtils.getDeviceType() == 'desktop')) {
+            (check < 1000000 && ARENAUtils.getDeviceType() == 'desktop')) {
         this.loader.load(src, function gltfLoaded(gltfModel) {
             self.model = gltfModel.scene || gltfModel.scenes[0];
             self.model.animations = gltfModel.animations;
