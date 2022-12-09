@@ -47,7 +47,7 @@ AFRAME.components['gltf-model'].Component.prototype.update = function() {
             el.emit('model-error', {format: 'gltf', src: src});
         });
         
-        controller.abort();
+        //controller.abort();
    // }
     //})
 };
