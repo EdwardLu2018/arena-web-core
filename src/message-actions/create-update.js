@@ -220,7 +220,7 @@ export class CreateUpdate {
             }
             // gltf is a special case in that the src is applied to the component 'gltf-model'
             if (data.hasOwnProperty('src')) {
-                if (!(data.hasOwnProperty('remote-render') && !data['remote-render'].enabled)) {
+                if (!(data.hasOwnProperty('remote-render') && data['remote-render'].enabled)) {
                     entityEl.setAttribute('gltf-model', ARENAUtils.crossOriginDropboxSrc(data.src));
                     delete data.src; // remove attribute so we don't set it later
                 }
