@@ -16,7 +16,7 @@ AFRAME.registerComponent('remote-render', {
             const remoteRender = new CustomEvent('hybrid-onremoterender', {
                 detail: {
                     object_id: this.el.id,
-                    remoteRendered: this.data.enabled,
+                    remoteRendered: !this.data.enabled,
                 },
             });
             window.dispatchEvent(remoteRender);
