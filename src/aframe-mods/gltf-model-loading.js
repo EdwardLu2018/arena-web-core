@@ -7,7 +7,7 @@
  * Copyright (c) 2020, The CONIX Research Center. All rights reserved.
  * @date 2020
  */
- import {ARENAUtils} from '../../../utils';
+ import {ARENAUtils} from '../utils';
 AFRAME.components['gltf-model'].Component.prototype.update = function() {
     const self = this;
     const el = this.el;
