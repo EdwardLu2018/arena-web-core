@@ -62,6 +62,7 @@ AFRAME.registerComponent('render-client', {
 
         this.connectToCloud();
        // document.querySelector('a-scene').setAttribute('remote-render',{enabled: true});
+       console.log(document.querySelector('a-scene'));
         window.addEventListener('hybrid-onremoterender', this.onRemoteRender.bind(this));
         console.log('[render-client]', this.id);
         console.log(document.querySelector('a-scene').systems);
