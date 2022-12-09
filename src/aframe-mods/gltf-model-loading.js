@@ -25,16 +25,13 @@ AFRAME.components['gltf-model'].Component.prototype.update = function() {
     const request =  new Request(src);
     const controller = new AbortController();
     const signal = controller.signal;
-    console.log(this);
-    /*
+    console.log(this.el.id);
     fetch(request, { signal })
     .then((response) => {
-
         const check = response.headers.get( 'Content-Length' ) || response.headers.get( 'X-File-Size' );
         console.log(check);
         if(check === null || (check < 20000 && ARENAUtils.getDeviceType() == 'mobile') || 
             (check < 100000000 && ARENAUtils.getDeviceType() == 'desktop')) {
-        */
         this.loader.load(src, function gltfLoaded(gltfModel) {
             self.model = gltfModel.scene || gltfModel.scenes[0];
             self.model.animations = gltfModel.animations;
@@ -49,7 +46,7 @@ AFRAME.components['gltf-model'].Component.prototype.update = function() {
             el.emit('model-error', {format: 'gltf', src: src});
         });
         
-        //controller.abort();
-    //}
-    //})
+        controller.abort();
+    }
+    })
 };
