@@ -10,7 +10,7 @@ AFRAME.registerComponent('remote-render', {
         // console.log('render-client', this.el.id, this.data.enabled);
         console.log(this.el.id);
         if (oldData.enabled !== this.data.enabled) {
-            this.el.object3D.visible = !this.data.enabled;
+            this.el.object3D.visible = this.data.enabled;
 
             const remoteRender = new CustomEvent('hybrid-onremoterender', {
                 detail: {
