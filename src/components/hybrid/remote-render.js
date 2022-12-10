@@ -10,12 +10,14 @@ AFRAME.registerComponent('remote-render', {
         // console.log('render-client', this.el.id, this.data.enabled);
         console.log(this.el.id);
         if (oldData.enabled !== this.data.enabled) {
-            this.el.object3D.visible = this.data.enabled;
+            this.el.object3D.visible = this.data.enabled && 
+                        !document.querySelector('a-scene').systems['model-progress'].loadAlert.modelStatus[this.el.id];
 
             const remoteRender = new CustomEvent('hybrid-onremoterender', {
                 detail: {
                     object_id: this.el.id,
-                    remoteRendered: this.data.enabled,
+                    remoteRendered: this.data.enabled && 
+                    document.querySelector('a-scene').systems['model-progress'].loadAlert.modelStatus[this.el.id] ,
                 },
             });
             window.dispatchEvent(remoteRender);
