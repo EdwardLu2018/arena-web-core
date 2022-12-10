@@ -201,7 +201,7 @@ AFRAME.registerSystem('model-progress', {
         this.loadAlert.display(title, files, percent);
     },
     addModel: function(event) {
-        this.loadProgress.modelStatus[event.detail] = event.detail.status;
+        this.loadAlert.modelStatus[event.detail.object] = event.detail.status;
     },
 });
 
