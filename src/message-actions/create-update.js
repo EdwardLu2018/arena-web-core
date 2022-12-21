@@ -206,11 +206,11 @@ export class CreateUpdate {
             break;
         case 'gltf-model':
             if (ARENA.armode && data.hasOwnProperty('hide-on-enter-ar')) {
-                console.warn(`Skipping hide-on-enter-ar GLTF: ${entityEl.getAttribute('id')}`);
+                Logger.warning('gltf-model', `Skipping hide-on-enter-ar GLTF: ${entityEl.getAttribute('id')}`);
                 return false; // do not add this object
             }
             if (ARENA.vr && data.hasOwnProperty('hide-on-enter-vr')) {
-                console.warn(`Skipping hide-on-enter-vr GLTF: ${entityEl.getAttribute('id')}`);
+                Logger.warning('gltf-model', `Skipping hide-on-enter-vr GLTF: ${entityEl.getAttribute('id')}`);
                 return false; // do not add this object
             }
             // support both url and src property
@@ -220,8 +220,10 @@ export class CreateUpdate {
             }
             // gltf is a special case in that the src is applied to the component 'gltf-model'
             if (data.hasOwnProperty('src')) {
-                entityEl.setAttribute('gltf-model', ARENAUtils.crossOriginDropboxSrc(data.src));
-                delete data.src; // remove attribute so we don't set it later
+                if (!(data.hasOwnProperty('remote-render') && data['remote-render'].enabled)) {
+                    entityEl.setAttribute('gltf-model', ARENAUtils.crossOriginDropboxSrc(data.src));
+                    delete data.src; // remove attribute so we don't set it later
+                }
             }
             // add attribution by default, if not given
             if (!data.hasOwnProperty('attribution')) {

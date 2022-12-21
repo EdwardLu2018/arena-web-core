@@ -39,6 +39,7 @@ class LoadAlertTable {
         this.timeoutBar = document.createElement('div');
         this.timeoutBar.className = 'alert-timeout';
         this.alertBox.appendChild(this.timeoutBar);
+        this.modelStatus = {};
     }
 
     parseTableRows(rows) {
@@ -131,6 +132,9 @@ AFRAME.registerSystem('model-progress', {
             el.addEventListener('model-error', (evt) => {
                 _this.updateProgress(true, evt);
             });
+            el.addEventListener('model-render-status', (evt) => {
+                _this.addModel(evt);
+            });
         }
     },
     /**
@@ -196,6 +200,8 @@ AFRAME.registerSystem('model-progress', {
 
         this.loadAlert.display(title, files, percent);
     },
-
+    addModel: function(event) {
+        this.loadAlert.modelStatus[event.detail.object] = event.detail.status;
+    },
 });
 

@@ -155,8 +155,8 @@ AFRAME.registerSystem('armarker', {
         }
 
         // if we are on an AR headset, use camera facing forward
-        ARENA.arHeadset = this.detectARHeadset();
-        if (ARENA.arHeadset !== undefined) {
+        const arHeadset = ARENAUtils.detectARHeadset();
+        if (arHeadset !== undefined) {
             // try to set up a camera facing forward capture (using getUserMedia)
             console.info('Setting up AR Headset camera capture.');
             try {
@@ -168,6 +168,13 @@ AFRAME.registerSystem('armarker', {
 
 
         if (!this.cameraCapture) { // Not WebXRViewer/WebARViewer, not AR headset
+            // ignore camera capture when in VR Mode
+            const sceneEl = document.querySelector('a-scene');
+            if (!sceneEl.is('ar-mode')) {
+                console.info('Attempted to initialize camera capture, but found VR Mode.');
+                return;
+            }
+
             if (window.XRWebGLBinding) { // Set up a webxr camera capture (e.g. passthrough AR on a phone)
                 console.info('Setting up WebXR-based passthrough AR camera capture.');
                 try {
@@ -320,20 +327,6 @@ AFRAME.registerSystem('armarker', {
                 });
             });
         return true;
-    },
-    /**
-    * Try to detect AR headset (currently: magic leap and hololens only;  other devices to be added later)
-    * Hololens reliable detection is tbd
-    *
-    * ARHeadeset camera capture uses returned value as a key to projection matrix array
-    *
-    * @return {string} "ml", "hl", "unknown".
-    * @alias module:armarker-system
-    */
-    detectARHeadset() {
-        if (window.mlWorld) return 'ml';
-        if (navigator.xr && navigator.userAgent.includes('Edg')) return 'hl';
-        return undefined;
     },
     /**
     * Register an ARMarker component with the system
