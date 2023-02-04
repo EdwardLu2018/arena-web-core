@@ -1,4 +1,3 @@
-import {EffectComposer} from './effect-composer';
 import {CompositorPass} from './compositor-pass';
 
 AFRAME.registerSystem('compositor', {
@@ -10,11 +9,13 @@ AFRAME.registerSystem('compositor', {
             return;
         }
 
+        const renderer = sceneEl.renderer;
+
         this.cameras = [];
 
         this.originalRenderFunc = null;
 
-        this.renderTarget = new THREE.WebGLRenderTarget(1, 1);
+        this.renderTarget = new THREE.WebGLRenderTarget(1,1);
         this.renderTarget.texture.name = 'EffectComposer.rt1';
         this.renderTarget.texture.minFilter = THREE.NearestFilter;
         this.renderTarget.texture.magFilter = THREE.NearestFilter;
@@ -22,6 +23,11 @@ AFRAME.registerSystem('compositor', {
         this.renderTarget.depthTexture = new THREE.DepthTexture();
         this.renderTarget.depthTexture.format = THREE.DepthFormat;
         this.renderTarget.depthTexture.type = THREE.UnsignedShortType;
+
+        this.onResize();
+        window.addEventListener('resize', this.onResize.bind(this));
+        renderer.xr.addEventListener('sessionstart', this.onResize.bind(this));
+        renderer.xr.addEventListener('sessionend', this.onResize.bind(this));
     },
 
     handleRemoteTrack(stream) {
@@ -56,30 +62,28 @@ AFRAME.registerSystem('compositor', {
         const scene = sceneEl.object3D;
         const camera = sceneEl.camera;
 
-        this.composer = new EffectComposer(renderer, this.renderTarget);
         this.pass = new CompositorPass(scene, camera, this.remoteVideo);
-        this.composer.addPass(this.pass);
 
         this.t = 0;
         this.dt = 0;
 
-        this.onWindowResize();
-        window.addEventListener('resize', this.onWindowResize.bind(this));
-
+        this.onResize();
         this.remoteVideo.play();
 
         this.bind();
     },
 
-    onWindowResize() {
+    onResize() {
         const sceneEl = this.sceneEl;
         const renderer = sceneEl.renderer;
 
-        const sizeVector = new THREE.Vector2();
-        const size = renderer.getSize(sizeVector);
+        var rendererSize = new THREE.Vector2();
+        renderer.getSize(rendererSize);
         const pixelRatio = renderer.getPixelRatio();
-        this.composer.setSize(pixelRatio * size.width, pixelRatio * size.height);
-        this.renderTarget.setSize(pixelRatio * size.width, pixelRatio * size.height);
+        this.renderTarget.setSize(pixelRatio * rendererSize.width, pixelRatio * rendererSize.height);
+        if (this.pass) {
+            this.pass.setSize(pixelRatio * rendererSize.width, pixelRatio * rendererSize.height);
+        }
     },
 
     tick: function(t, dt) {
@@ -96,8 +100,6 @@ AFRAME.registerSystem('compositor', {
 
         this.originalRenderFunc = render;
 
-        let currentXREnabled = renderer.xr.enabled;
-
         this.sceneEl.object3D.onBeforeRender = function(renderer, scene, camera) {
             if (camera instanceof THREE.ArrayCamera) {
                 system.cameras = camera.cameras;
@@ -108,6 +110,9 @@ AFRAME.registerSystem('compositor', {
 
         let hasDualCameras = false;
 
+        let currentXREnabled = renderer.xr.enabled;
+        let currentShadowAutoUpdate = renderer.shadowMap.autoUpdate;
+
         const isWebXRViewer = navigator.userAgent.includes('WebXRViewer');
 
         const cameraLPos = new THREE.Vector3();
@@ -116,21 +121,31 @@ AFRAME.registerSystem('compositor', {
         renderer.render = function() {
             const size = renderer.getSize(sizeVector);
             if (isDigest) {
-                this.xr.enabled = currentXREnabled;
                 // render "normally"
                 render.apply(this, arguments);
             } else {
                 isDigest = true;
 
-                // this will internally call renderer.render(), which will execute the code within
-                // the isDigest conditional above (render normally). this will copy the result of
-                // the rendering to the readbuffer in the composer (aka this.renderTarget), which we
-                // will use for the "local" frame.
-                // the composer will take the "local" frame and merge it with the "remote" frame from
-                // the video by calling the compositor pass and executing the shaders.
-                // we will call render() (but not renderer.render()) AGAIN below, which will not execute
-                // the code above.
-                system.composer.render(system.dt);
+                // save render state (1)
+                const currentRenderTarget = this.getRenderTarget();
+                if (currentRenderTarget != null) {
+                    // resize if an existing rendertarget exists (usually in webxr mode)
+                    system.pass.setSize(currentRenderTarget.width, currentRenderTarget.height);
+                    system.renderTarget.setSize(currentRenderTarget.width, currentRenderTarget.height);
+                }
+
+                // store "normal" rendering output to this.renderTarget
+                this.setRenderTarget(system.renderTarget);
+                render.apply(this, arguments);
+                this.setRenderTarget(currentRenderTarget);
+
+                // save render state (2)
+                currentXREnabled = this.xr.enabled;
+                currentShadowAutoUpdate = this.shadowMap.autoUpdate;
+
+                // disable xr
+                this.xr.enabled = false;
+                this.shadowMap.autoUpdate = false;
 
                 if (system.cameras.length > 1) {
                     // we have two cameras here (vr mode or headset ar mode)
@@ -161,12 +176,19 @@ AFRAME.registerSystem('compositor', {
                     hasDualCameras = false;
                 }
 
-                currentXREnabled = this.xr.enabled;
-                if (this.xr.enabled === true) {
-                    this.xr.enabled = false;
-                }
-                render.call(this, system.pass.quadScene, system.pass.quadCamera);
+                // render with custom shader (local-remote compositing):
+                // this will internally call renderer.render(), which will execute the code within
+                // the isDigest conditional above (render normally). this will copy the result of
+                // the rendering to the readbuffer in the compositor (aka this.renderTarget), which we
+                // will use for the "local" frame.
+                // the composer will take the "local" frame and merge it with the "remote" frame from
+                // the video by calling the compositor pass and executing the shaders.
+                system.pass.render(this, currentRenderTarget, system.renderTarget);
+
+                // restore render state
+                this.setRenderTarget(currentRenderTarget);
                 this.xr.enabled = currentXREnabled;
+                this.shadowMap.autoUpdate = currentShadowAutoUpdate;
 
                 system.pass.setHasDualCameras(hasDualCameras);
                 AFRAME.utils.entity.setComponentProperty(mainCamera, 'render-client.hasDualCameras', hasDualCameras);
