@@ -108,7 +108,19 @@ AFRAME.registerSystem('compositor', {
             }
         }
 
-        let hasDualCameras = false;
+        function decomposeProj(projMat) {
+            const elements = projMat.elements;
+            const x = elements[0] / 2;
+            const a = elements[2] / 2;
+            const y = elements[5];
+            const b = elements[6];
+            const c = elements[10];
+            const d = elements[11];
+            const e = elements[14];
+            return [x,a,y,b,c,d,e];
+        }
+
+        let hasDualCameras, ipd, leftProj, rightProj;
 
         let currentXREnabled = renderer.xr.enabled;
         let currentShadowAutoUpdate = renderer.shadowMap.autoUpdate;
@@ -155,9 +167,10 @@ AFRAME.registerSystem('compositor', {
                     const cameraR = system.cameras[1];
                     cameraLPos.setFromMatrixPosition( cameraL.matrixWorld );
                     cameraRPos.setFromMatrixPosition( cameraR.matrixWorld );
-                    const ipd = cameraLPos.distanceTo( cameraRPos );
+                    ipd = cameraLPos.distanceTo( cameraRPos );
 
-                    AFRAME.utils.entity.setComponentProperty(mainCamera, 'render-client.ipd', ipd);
+                    leftProj = decomposeProj(cameraL.projectionMatrix.transpose());
+                    rightProj = decomposeProj(cameraR.projectionMatrix.transpose());
 
                     /* const projL = cameraL.projectionMatrix.elements;
                     const projR = cameraR.projectionMatrix.elements;
@@ -191,7 +204,13 @@ AFRAME.registerSystem('compositor', {
                 this.shadowMap.autoUpdate = currentShadowAutoUpdate;
 
                 system.pass.setHasDualCameras(hasDualCameras);
-                AFRAME.utils.entity.setComponentProperty(mainCamera, 'render-client.hasDualCameras', hasDualCameras);
+
+                AFRAME.utils.entity.setComponentProperty(mainCamera, 'render-client', {
+                    hasDualCameras: hasDualCameras,
+                    ipd: ipd,
+                    leftProj: leftProj,
+                    rightProj, rightProj
+                });
 
                 // call this part of the conditional again on the next call to render()
                 isDigest = false;
